@@ -195,6 +195,7 @@ class MainFrame(wx.Frame):
                       wx.OK|wx.ICON_INFORMATION)
         
     def OnButton(self, e):
+        #Set everything to 0
         if(self.b1.GetValue() == ''):
             self.b1.SetValue('0')
         if(self.b2.GetValue() == ''):
@@ -223,6 +224,7 @@ class MainFrame(wx.Frame):
             self.eb6.SetValue('0')
         if(self.eb7.GetValue() == ''):
             self.eb7.SetValue('0')
+        #get minion value data from gui and store in minions
         minions = {1: (int(self.b1.GetValue()), self.divineShield1.GetValue(), self.spDamage1.GetValue()),
                    2: (int(self.b2.GetValue()), self.divineShield2.GetValue(), self.spDamage2.GetValue()),
                    3: (int(self.b3.GetValue()), self.divineShield3.GetValue(), self.spDamage3.GetValue()),
@@ -242,6 +244,8 @@ class MainFrame(wx.Frame):
         minionhps = []
         miniondivines = []
         minionspell = []
+        
+        #individual arrays for the minion stats
         for x in minions:
             minionhps.append(minions[x][0])
             miniondivines.append(minions[x][1])
@@ -250,12 +254,14 @@ class MainFrame(wx.Frame):
         print(miniondivines)
         
         reCast = True
+        #True for first cast, will update to false if no minion dies
         while(reCast):
 
             extraSpellDamage = minionspell.count(True)
             reCast = False
             for x in range(0, 14):
                 if(miniondivines[x] == True):
+                    #Break divine shield on Gui and in divine array
                     if(x == 0):
                         self.divineShield1.SetValue(False)
                         miniondivines[x] = False
@@ -299,16 +305,17 @@ class MainFrame(wx.Frame):
                         self.endivineShield7.SetValue(False)
                         miniondivines[x] = False                    
                 else:
+                    #if not divine shield, deal damage to minion
                     if(minionhps[x] < 0):
-                        minionhps[x] = 0
+                        minionhps[x] = 0  #Set to 0 if number goes negative
                     if(minionhps[x] > 0):                        
                         print(minionspell.count(True))
-                        minionhps[x] = minionhps[x] - 1 - extraSpellDamage
+                        minionhps[x] = minionhps[x] - 1 - extraSpellDamage #calculate damage dealt based off spell power
                         if(minionhps[x] < 0):
                             minionhps[x] = 0
-                        if(minionhps[x] <= 0):
-                            reCast = True
-                            if(x == 0):
+                        if(minionhps[x] <= 0): #Meaning the minion was killed, remember it had hp at first
+                            reCast = True #Cast again
+                            if(x == 0):  #Reduce spell damage if minion had spell power
                                 self.spDamage1.SetValue(False)
                                 minionspell[x] = False
                             if(x == 1):
@@ -329,7 +336,7 @@ class MainFrame(wx.Frame):
                             if(x == 6):
                                 self.spDamage7.SetValue(False)
                                 minionspell[x] = False
-                            
+        #update minion hp                   
         self.b1.SetValue(str(minionhps[0]))
         self.b2.SetValue(str(minionhps[1]))
         self.b3.SetValue(str(minionhps[2]))
